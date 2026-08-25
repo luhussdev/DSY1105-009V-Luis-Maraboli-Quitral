@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+// Clase 17/08/2026
+
 //Operadores Matemáticos y Comparación
 
 // En Kotlin, las comparaciones devuelven siempre un Boolean (true o false)

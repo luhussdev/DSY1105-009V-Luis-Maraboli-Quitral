@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+// Clase 20/08/2026
+
 // Revisar el repode la asignatura
 // Archivo: estandar del repo del estudiante
 // Seguir intrucciones
