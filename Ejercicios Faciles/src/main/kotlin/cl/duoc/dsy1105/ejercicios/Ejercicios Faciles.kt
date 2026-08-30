@@ -104,6 +104,118 @@ fun ejercicio6() {
     println("Inicio")
 }
 
+// Ejercicio 7
+fun calcularDescuento(precio: Double, porcentajeDescuento: Double): Double {
+    val descuento = precio * (porcentajeDescuento / 100.0)
+    return precio - descuento
+}
+
+fun ejercicio7() {
+    val precioOriginal = 10000.0
+    val porcentaje = 15.0
+
+    val precioFinal = calcularDescuento(precioOriginal, porcentaje)
+
+    println("Precio original: $precioOriginal")
+    println("Descuento aplicado: $porcentaje%")
+    println("Precio final a pagar: $precioFinal")
+}
+
+// Ejercicio 8
+fun evaluarCorreo(correo: String?) {
+    val mensaje = correo ?: "Correo no registrado"
+    println("Resultado: $mensaje")
+}
+
+fun ejercicio8() {
+    var correo: String? = null
+    println("--- Prueba con Null ---")
+    evaluarCorreo(correo)
+
+    correo = "estudiante@duocuc.cl"
+    println("--- Prueba con correo ---")
+    evaluarCorreo(correo)
+}
+
+fun ejercicio9() {
+    val lenguajes = listOf("kotlin", "Java", "Python", "C++", "JavaScript")
+
+    println("Lista de lenguajes: $lenguajes")
+
+    println("Primer elemento: ${lenguajes.first()}")
+
+    println("Cantidad de elementos: ${lenguajes.size}")
+
+    println("--- Recorrido con for ---")
+    for (lenguaje in lenguajes) {
+        println("- $lenguaje")
+    }
+}
+
+fun ejercicio10() {
+    val tareas = mutableListOf("Estudiar Kotlin", "Hacer ejercicio", "Comprar pan")
+    println("Lista inicial: $tareas")
+
+    // Agregar una tarea
+    tareas.add("Revisar correo")
+    println("Despues de agregar: $tareas")
+
+    // Eliminar una tarea
+    tareas.remove("Comprar pan")
+    println("Despues de eliminar: $tareas")
+
+    // Recorrer el resultado
+    println("\n--- Lista final de tareas ---")
+    for (tarea in tareas) {
+        println(" - $tarea")
+    }
+}
+
+// Por qué aqui si se necesita una lista mutable?
+/*
+listof: Al ser una lista de solo lectura (elementos fijos) no permite una manipulación dentro de la lista ya creada.
+
+mutableListOf(): A diferencia de una lista inmutable (listOf), mutableListOf si permite la manipulación, agregando o eliminando elementos.
+
+En ejercicio 10 se solicitaba que se agregaran e eliminar tareas por consiguiente era mejor trabajar con una lista mutable.
+ */
+
+// Ejercicio 11
+fun ejercicio11() {
+    val nombres = listOf("Isis", "Isa", "Isidora", "Isabel", "Izzi")
+
+    // Recorrido con forEach
+    println("--- Recorrido con forEach")
+    nombres.forEach {nombre ->
+        println("Hola, $nombre")
+    }
+
+    // Recorrido con un for
+    println("\n --- Recorrido con for ---")
+    for (nombre in nombres) {
+        println("Hola, $nombre")
+    }
+}
+
+fun ejercicio12() {
+    val numeros = listOf(12, 5, 18, 3, 21, 9)
+    println("Lista original: $numeros")
+
+    // Filtrar valores mayores o iguales a 10
+    val mayoresOIgualesA10 = numeros.filter { it >= 10}
+    println("Valores >= 10: $mayoresOIgualesA10")
+
+    // Multiplicar cada valor por 2
+    val multiplicadosPorDos = numeros.map { it * 2 }
+    println("Valores multiplicados por 2: $multiplicadosPorDos")
+
+    // Contar cantidad de valores mayores a 15
+    val cantidadMayorA15 = numeros.count { it > 15}
+    println("Cantidad de valores > 15: $cantidadMayorA15")
+}
+
+
+
 fun main() {
     separador("EJERCICIO 1")
     ejercicio1()
@@ -117,6 +229,18 @@ fun main() {
     ejercicio5()
     separador("EJERCICIO 6")
     ejercicio6()
+    separador("EJERCICIO 7")
+    ejercicio7()
+    separador("EJERCICIO 8")
+    ejercicio8()
+    separador("EJERCICIO 9")
+    ejercicio9()
+    separador("EJERCICIO 10")
+    ejercicio10()
+    separador("EJERCICIO 11")
+    ejercicio11()
+    separador("EJERCICIO 12")
+    ejercicio12()
 }
 
 
