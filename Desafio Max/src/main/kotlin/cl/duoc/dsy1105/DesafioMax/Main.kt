@@ -3,7 +3,7 @@ package cl.duoc.dsy1105.DesafioMax
 class Bicicleta(
     val id: String,
     val tipo: String,
-    val tariaHora: Int
+    val tarifaHora: Int
 ) {
     var disponible: Boolean = true
         private set
@@ -20,15 +20,20 @@ class Bicicleta(
         disponible = true
     }
 
-    // Calculo costo
+    // Calculo costo, aplicamos un dscto del 10% si arrienda por más de 5 horas
     fun calcularCosto(horas: Int): Int {
-        return horas * tariaHora
+        val costoBase = horas * tarifaHora
+        return if (horas > 5) {
+            (costoBase * 0.90).toInt()
+        } else {
+            costoBase
+        }
     }
 
     // Metodo imprimir datos
     fun obtenerDetalle(): String {
         val estado = if (disponible) "[Disponible]" else "[Arrendada]"
-        return "ID: $id | Tipo: $tipo | Tarifa: $tariaHora/hr | Estado: $estado"
+        return "ID: $id | Tipo: $tipo | Tarifa: $tarifaHora/hr | Estado: $estado"
     }
 }
 
@@ -38,6 +43,13 @@ class Bicicleta(
 fun main() {
     // Colección mutable
     val listaBicicletas = mutableListOf<Bicicleta>()
+
+    // Registro histórico de ingresos por bicicletas
+    val ingresoPorBicicleta = mutableMapOf<String, Int>()
+
+
+    var ingresoTotalAcumulado = 0
+    var totalArriendosRealizados = 0
     var continuar = true
 
     while (continuar) {
@@ -46,12 +58,13 @@ fun main() {
         println("\n=============================================")
         println("1.- Registrar bicicleta")
         println("2.- Buscar bicicleta por ID")
-        println("3.- Arrendar bicicleta")
+        println("3.- Arrendar bicicleta (Aplica Dcto > 5 hrs)")
         println("4.- Devolver bicicleta")
         println("5.- Listar disponibless / no disponible")
-        println("6.- Ver Top Rentabilidad (Extra)")
-        println("7.- Ver Resumen General e Indicadores")
-        println("8.- Salir")
+        println("6.- Ver Top Rentabilidad (Extra 1)")
+        println("7.- Buscar por presupuesto / tarifa máz (Extra 3) ")
+        println("8.- Ver Resumen General e Indicadores")
+        println("9.- Salir")
         println("Selecciones una opción: ")
 
         when (readlnOrNull()?.trim()) {
@@ -64,9 +77,9 @@ fun main() {
                 val tipo = readlnOrNull()?.trim() ?: ""
 
                 println("Ingrese Tarifa por hora: ")
-                val tarifaInput = readlnOrNull()?.trim()
+                val tarifa = readlnOrNull()?.trim()?.toIntOrNull()
 
-                val tarifa = tarifaInput?.toIntOrNull()
+                //val tarifa = tarifaInput?.toIntOrNull()
 
                 if (id.isBlank()) {
                     println("ERROR DE REGISTRO: El ID no puede estar vacío.")
@@ -103,10 +116,55 @@ fun main() {
                 }
             }
             "3" -> {
-                println("Arrendar bicicleta: ")
+                println("\n--- Arrendar bicicleta ---")
+                println("Ingrese el ID de la bicicleta a arrendar: ")
+                val idArriendo = readlnOrNull()?.trim() ?: ""
+
+                val bici = listaBicicletas.find { it.id.equals(idArriendo, ignoreCase = true) }
+
+                if (bici == null) {
+                    println(" ERROR: No existe ninguna bicicleta con el ID '$idArriendo'.")
+                } else if (!bici.disponible) {
+                    println("RECHAZADO: La bicicleta '${bici.id}' ya se encuentra arrendada.")
+                } else {
+                    println("Ingrese cantidad de horas de uso: ")
+                    //val horasInput = readlnOrNull()?.trim()
+                    //val horas = horasInput?.toIntOrNull()
+                    val horas = readlnOrNull()?.trim()?.toIntOrNull()
+
+                    if (horas == null || horas <= 0) {
+                        println("ERROR: Las horas deben ser un número entero positivo.")
+                    } else {
+                        bici.arrendar()
+                        val costoTotal = bici.calcularCosto(horas)
+
+                        ingresoTotalAcumulado += costoTotal
+                        totalArriendosRealizados++
+                        ingresoPorBicicleta[bici.id] = (ingresoPorBicicleta[bici.id] ?: 0) + costoTotal
+
+                        val msjDescuento = if (horas > 5) "(Aplica 10% de descuento)" else ""
+                        println(" ARRIENDO EXITOS")
+                        println("Bicicleta: ${bici.id} (${bici.tipo})")
+                        println("Horas: $horas hrs | $msjDescuento")
+                        println("Total a pagar: $$costoTotal")
+                    }
+                }
             }
             "4" -> {
-                println("Devolver bicicleta: ")
+                println("\n--- Devolver bicicleta ---")
+                println("Ingrese el ID de la bicicleta a devolver: ")
+                val idDevolucion  = readlnOrNull()?.trim() ?: ""
+
+                val bici = listaBicicletas.find { it.id.equals(idDevolucion, ignoreCase = true) }
+
+                if (bici == null) {
+                    println("ERROR: No existe ninguna bicicleta con el ID '${idDevolucion}'.")
+                } else if (bici.disponible) {
+                    println("RECHAZADO: La bicicleta '{bici.id} ya está en el local (está disponible).)'")
+                } else {
+                    bici.devolver()
+                    println("DEVOLUCION EXITOSA, La bicicleta '${bici.id}' ya está disponible.")
+                }
             }
             "5" -> {
                 println("\n--- Listar disponibless / no disponible ---")
@@ -133,13 +191,60 @@ fun main() {
                 }
             }
             "6" -> {
-                println("Ver Top Rentabilidad (Extra): ")
+                println("\n--- TOP BICICLETAS MÁS RENTABLES ---")
+                if (ingresoPorBicicleta.isEmpty()) {
+                    println("No hay datos de arriendos para generar el ranking.")
+                } else {
+                    ingresoPorBicicleta.entries
+                        .sortedByDescending { it.value }
+                        .take(3)
+                        .forEachIndexed { i, entry ->
+                            val bici = listaBicicletas.find { it.id == entry.key }
+                            println(" ${i + 1}. ID: ${entry.key} (${bici?.tipo}) | Generado: $$${entry.value}")
+                        }
+                }
             }
             "7" -> {
-                println("Ver Resumen General e Indicadores")
+                println("\n--- BÚSQUEDA POR PRESUPUESTO ---")
+                println("Ingrese tarifa máxima pro hora: ")
+                val tarifaMax = readlnOrNull()?.trim()?.toIntOrNull()
+
+                if (tarifaMax == null || tarifaMax <= 0) {
+                    println("ERROR: Ingrese un monto válido.")
+                } else {
+                    val economicas = listaBicicletas.filter { it.tarifaHora <= tarifaMax }
+                    if (economicas.isEmpty()) {
+                        println("No hay bicicletas con tarifa menor o igual a $$tarifaMax.")
+                    } else {
+                        println("Bicicletas dentro del presupuesto:")
+                        economicas.forEach { println("${it.obtenerDetalle()}") }
+                    }
+                }
             }
             "8" -> {
-                println("Salir ")
+                println("\n--- Ver Resumen General e Indicadores ---")
+                val totalBicis = listaBicicletas.size
+                val disponibles = listaBicicletas.count { it.disponible }
+                val arrendadas = listaBicicletas.count { !it.disponible }
+                //val tarifaPromedio = if (totalBicis > 0) listaBicicletas.map { it.tarifaHora }.average() else 0.0
+
+                // Calculo tarifa promedio
+                val tarifaPromedio = if (totalBicis > 0) listaBicicletas.map { it.tarifaHora }.average() else 0.0
+
+                println("Total de bicicletas registrada     : $totalBicis")
+                println("Bicicletas disponible              : $disponibles")
+                println("Bicicletas arrendadas              : $arrendadas")
+                println("--------------------------------------------")
+                println("Ingreso total acumulado            : $$ingresoTotalAcumulado")
+                println("Cantidad de arriendos procesados   : $totalArriendosRealizados")
+                println("Tarifa promedio general            : $${"%.2f".format(tarifaPromedio)}/hr")
+                println("--------------------------------------------")
+            }
+            "9" -> {
+                println("Saliendo del programa...")
+                println("Version 1.0")
+                println("Desarrollado por: Luis Marabolí Quitral")
+                continuar = false
             }
             else -> println("Opción no válida...")
 
